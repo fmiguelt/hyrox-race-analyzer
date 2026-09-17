@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyrox Race Calculator & Analyzer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        h2 {
+            color: #555;
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        .calculator-section {
+            background-color: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="number"], input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #c0392b;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #ffe6e6;
+            border-left: 4px solid #e74c3c;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #e74c3c;
+            color: white;
+            text-align: center;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .station-row {
+            background-color: #fff3cd !important;
+        }
+        .run-row {
+            background-color: #d1ecf1 !important;
+        }
+        .split-input {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 10px 0;
+        }
+        @media (max-width: 768px) {
+            .split-input {
+                grid-template-columns: 1fr;
+            }
+        }
+        .info-box {
+            background-color: #d1ecf1;
+            border-left: 4px solid #0c5460;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .warning-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #856404;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .station-name {
+            font-weight: bold;
+            color: #856404;
+        }
+        .run-name {
+            font-weight: bold;
+            color: #0c5460;
+        }
+        .total-row {
+            background-color: #e74c3c !important;
+            color: white;
+            font-weight: bold;
+        }
+        .total-row td {
+            border-color: #c0392b;
+        }
+        .paste-section textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+        .paste-example {
+            font-family: monospace;
+            font-size: 12px;
+            color: #666;
+            background: #f0f0f0;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px 0 10px 0;
+            word-break: break-all;
+        }
+        .history-section {
+            margin-top: 10px;
+        }
+        .history-entry {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            position: relative;
+        }
+        .history-entry h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+        .history-meta {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        .history-meta span {
+            margin-right: 15px;
+        }
+        .history-times {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            font-size: 13px;
+        }
+        .history-times .runs, .history-times .workouts {
+            flex: 1;
+            min-width: 200px;
+        }
+        .history-times .label {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        .history-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+        .history-actions button {
+            padding: 4px 10px;
+            font-size: 12px;
+            margin: 0;
+        }
+        .btn-delete {
+            background-color: #888;
+        }
+        .btn-delete:hover {
+            background-color: #666;
+        }
+        .btn-load {
+            background-color: #3498db;
+        }
+        .btn-load:hover {
+            background-color: #2980b9;
+        }
+        .save-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        @media (max-width: 768px) {
+            .save-fields {
+                grid-template-columns: 1fr;
+            }
+        }
+        .history-total {
+            font-weight: bold;
+            color: #e74c3c;
+            font-size: 15px;
+            margin-top: 5px;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+        .tag-competition {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .tag-simulation {
+            background-color: #3498db;
+            color: white;
+        }
+        .race-type-toggle {
+            display: flex;
+            gap: 0;
+            margin-top: 5px;
+        }
+        .race-type-toggle label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            font-weight: normal;
+            font-size: 14px;
+            transition: all 0.15s;
+            user-select: none;
+        }
+        .race-type-toggle label:first-of-type {
+            border-radius: 4px 0 0 4px;
+        }
+        .race-type-toggle label:last-of-type {
+            border-radius: 0 4px 4px 0;
+            border-left: none;
+        }
+        .race-type-toggle input[type="radio"] {
+            display: none;
+        }
+        .race-type-toggle input[type="radio"]:checked + span {
+            font-weight: bold;
+        }
+        .race-type-toggle label:has(input:checked) {
+            border-color: #e74c3c;
+            background-color: #ffe6e6;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hyrox Race Calculator & Analyzer</h1>
+    <p class="subtitle">8km Run + 8 Workout Stations</p>
+
+    <!-- Section 1: Race Planner -->
+    <div class="calculator-section">
+        <h2>1. Hyrox Race Planner</h2>
+        <div class="info-box">
+            Plan your race strategy by entering your target finish time and estimated station times.
+            The calculator will show you the pace needed for each 1km run segment.
+        </div>
+
+        <div class="input-group">
+            <label for="target-time">Target Finish Time (HH:MM:SS):</label>
+            <input type="text" id="target-time" placeholder="e.g., 1:30:00">
+        </div>
+
+        <div class="input-group">
+            <label for="total-station-time">Total Estimated Station Time (MM:SS):</label>
+            <input type="text" id="total-station-time" placeholder="e.g., 35:00">
+        </div>
+
+        <div class="input-group">
+            <label for="pacing-strategy">Pacing Strategy:</label>
+            <select id="pacing-strategy">
+                <option value="even">Even Pace (consistent throughout)</option>
+                <option value="conservative">Conservative Start (faster finish)</option>
+                <option value="aggressive">Aggressive Start (slower finish)</option>
+            </select>
+        </div>
+
+        <button onclick="calculateRacePlan()">Generate Race Plan</button>
+        <div id="race-plan-result" style="display:none;"></div>
+    </div>
+
+    <!-- Section 2: Paste Import -->
+    <div class="calculator-section">
+        <h2>2. Quick Import from Results</h2>
+        <div class="info-box paste-section">
+            Paste your race results in the format shown below. Running segments start with <strong>R.</strong> and workout/exercise segments start with <strong>E.</strong> — order matters (Run 1, Run 2, ... and SkiErg, Sled Push, ...).
+        </div>
+        <div class="paste-example">
+            R. 05:13&nbsp;&nbsp;R. 05:16&nbsp;&nbsp;R. 05:37&nbsp;&nbsp;R. 05:14&nbsp;&nbsp;R. 05:48&nbsp;&nbsp;R. 06:11&nbsp;&nbsp;R. 05:25&nbsp;&nbsp;R. 04:48&nbsp;&nbsp;1:18:17&nbsp;&nbsp;+18:20<br>
+            E. 04:11&nbsp;&nbsp;E. 02:01&nbsp;&nbsp;E. 03:42&nbsp;&nbsp;E. 03:19&nbsp;&nbsp;E. 04:59&nbsp;&nbsp;E. 02:28&nbsp;&nbsp;E. 05:02&nbsp;&nbsp;E. 04:21
+        </div>
+        <div class="paste-section">
+            <textarea id="paste-input" placeholder="Paste your results here..."></textarea>
+        </div>
+        <button onclick="parseAndFillSplits()">Import Splits</button>
+        <button class="btn-secondary" onclick="clearAllSplits()">Clear All Splits</button>
+    </div>
+
+    <!-- Section 3: Split Analyzer -->
+    <div class="calculator-section">
+        <h2>3. Hyrox Split Analyzer</h2>
+        <div class="info-box">
+            Enter your actual race splits to analyze your performance. Input times in MM:SS or HH:MM:SS format.
+            The <strong>Rox Zone</strong> (transition time between stations) is calculated when you provide a final time.
+        </div>
+
+        <div class="input-group">
+            <label for="final-time">Official Final Time (HH:MM:SS or MM:SS):</label>
+            <input type="text" id="final-time" placeholder="e.g., 1:18:17">
+
+        <div class="split-input">
+            <div>
+                <label>Run 1 (1km):</label>
+                <input type="text" id="run-1" placeholder="MM:SS">
+            </div>
+            <div>
+                <label class="station-name">SkiErg (1000m):</label>
+                <input type="text" id="station-1" placeholder="MM:SS">
+            </div>
+        </div>
+
+        <div class="split-input">
+            <div>
+                <label>Run 2 (1km):</label>
+                <input type="text" id="run-2" placeholder="MM:SS">
+            </div>
+            <div>
+                <label class="station-name">Sled Push (50m):</label>
+                <input type="text" id="station-2" placeholder="MM:SS">
+            </div>
+        </div>
+
+        <div class="split-input">
+            <div>
+                <label>Run 3 (1km):</label>
+                <input type="text" id="run-3" placeholder="MM:SS">
+            </div>
+            <div>
+                <label class="station-name">Sled Pull (50m):</label>
+                <input type="text" id="station-3" placeholder="MM:SS">
+            </div>
+        </div>
+
+        <div class="split-input">
+            <div>
+                <label>Run 4 (1km):</label>
+                <input type="text" id="run-4" placeholder="MM:SS">
+            </div>
+            <div>
+                <label class="station-name">Burpee Broad Jumps (80m):</label>
+                <input type="text" id="station-4" placeholder="MM:SS">
+            </div>
+        </div>
+
+        <div class="split-input">
+            <div>
+                <label>Run 5 (1km):</label>
+                <input type="text" id="run-5" placeholder="MM:SS">
+            </div>
+            <div>
+                <label class="station-name">Rowing (1000m):</label>
+                <input type="text" id="station-5" placeholder="MM:SS">
+            </div>
+        </div>
+
+        <div class="split-input">
+            <div>
+                <label>Run 6 (1km):</label>
+                <input type="text" id="run-6" placeholder="MM:SS">
+            </div>
+            <div>
+                <label class="station-name">Farmers Carry (200m):</label>
+                <input type="text" id="station-6" placeholder="MM:SS">
+            </div>
+        </div>
+
+        <div class="split-input">
+            <div>
+                <label>Run 7 (1km):</label>
+                <input type="text" id="run-7" placeholder="MM:SS">
+            </div>
+            <div>
+                <label class="station-name">Sandbag Lunges (100m):</label>
+                <input type="text" id="station-7" placeholder="MM:SS">
+            </div>
+        </div>
+
+        <div class="split-input">
+            <div>
+                <label>Run 8 (1km):</label>
+                <input type="text" id="run-8" placeholder="MM:SS">
+            </div>
+            <div>
+                <label class="station-name">Wall Balls (100 reps):</label>
+                <input type="text" id="station-8" placeholder="MM:SS">
+            </div>
+        </div>
+
+        <button onclick="analyzeSplits()">Analyze Performance</button>
+        <div id="split-analysis-result" style="display:none;"></div>
+    </div>
+
+    <!-- Section 4: Save Race -->
+    <div class="calculator-section">
+        <h2>4. Save Race Result</h2>
+        <div class="info-box">
+            Save your race result to local storage. Fill in the splits above first, then add race details below.
+        </div>
+
+        <div class="save-fields">
+            <div class="input-group">
+                <label for="race-name">Name / Race Name:</label>
+                <input type="text" id="race-name" placeholder="e.g., Hyrox Lisbon 2025">
+            </div>
+            <div class="input-group">
+                <label for="race-location">Location:</label>
+                <input type="text" id="race-location" placeholder="e.g., Lisbon, Portugal">
+            </div>
+            <div class="input-group">
+                <label for="race-category">Category:</label>
+                <select id="race-category">
+                    <option value="Men Open">Men Open</option>
+                    <option value="Women Open">Women Open</option>
+                    <option value="Men Pro">Men Pro</option>
+                    <option value="Women Pro">Women Pro</option>
+                    <option value="Men Doubles">Men Doubles</option>
+                    <option value="Women Doubles">Women Doubles</option>
+                    <option value="Mixed Doubles">Mixed Doubles</option>
+                    <option value="Men Relay">Men Relay</option>
+                    <option value="Women Relay">Women Relay</option>
+                    <option value="Mixed Relay">Mixed Relay</option>
+                </select>
+            </div>
+        </div>
+        <div id="partner-name-group" class="input-group" style="display: none;">
+            <label for="partner-name">Partner Name:</label>
+            <input type="text" id="partner-name" placeholder="e.g., John Doe">
+        </div>
+        <div class="input-group">
+            <label>Type:</label>
+            <div class="race-type-toggle">
+                <label><input type="radio" name="race-type" value="competition" checked><span>Competition</span></label>
+                <label><input type="radio" name="race-type" value="simulation"><span>Simulation</span></label>
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="race-date">Date:</label>
+            <input type="date" id="race-date">
+        </div>
+        <div class="input-group">
+            <label for="race-results-url">Official Results Link:</label>
+            <input type="text" id="race-results-url" placeholder="e.g., https://results.hyrox.com/...">
+        </div>
+
+        <button id="save-race-btn" onclick="saveRace()">Save Race</button>
+        <button id="cancel-edit-btn" class="btn-secondary" onclick="cancelEdit()" style="display: none;">Cancel Edit</button>
+    </div>
+
+    <!-- Section 5: Race History -->
+    <div class="calculator-section">
+        <h2>5. Race History</h2>
+        <div class="info-box">
+            Your saved race results. Data is stored locally in your browser.
+        </div>
+        <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button onclick="exportData()">Export Data</button>
+            <button class="btn-secondary" onclick="document.getElementById('import-file').click()">Import Data</button>
+            <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
+        </div>
+        <div class="race-type-toggle" style="margin-bottom: 15px;">
+            <label><input type="radio" name="history-filter" value="all" checked onchange="renderHistory()"><span>All</span></label>
+            <label><input type="radio" name="history-filter" value="competition" onchange="renderHistory()"><span>Competition</span></label>
+            <label><input type="radio" name="history-filter" value="simulation" onchange="renderHistory()"><span>Simulation</span></label>
+        </div>
+        <div id="race-history" class="history-section"></div>
+    </div>
+
+    <!-- Section 6: Performance Reference Guide -->
+    <div class="calculator-section">
+        <h2>6. Performance Reference Guide</h2>
+        <div class="warning-box">
+            <strong>Typical Times by Performance Level:</strong><br>
+            Use this as a reference to estimate your running and station times for race planning.
+        </div>
+
+        <div class="input-group">
+            <label for="ref-category">Category:</label>
+            <select id="ref-category" onchange="renderReferenceGuide()">
+                <option value="Men Open" selected>Men Open</option>
+                <option value="Women Open">Women Open</option>
+                <option value="Men Pro">Men Pro</option>
+                <option value="Women Pro">Women Pro</option>
+                <option value="Men Doubles">Men Doubles</option>
+                <option value="Women Doubles">Women Doubles</option>
+                <option value="Mixed Doubles">Mixed Doubles</option>
+            </select>
+        </div>
+
+        <div id="ref-guide-content"></div>
+    </div>
+
+    <script>
+        // Helper function to parse time string (MM:SS or HH:MM:SS) to seconds
+        function parseTimeToSeconds(timeStr) {
+            if (!timeStr || timeStr.trim() === '') return 0;
+
+            const parts = timeStr.trim().split(':');
+            let seconds = 0;
+
+            if (parts.length === 2) {
+                // MM:SS
+                seconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+            } else if (parts.length === 3) {
+                // HH:MM:SS
+                seconds = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+            }
+
+            return isNaN(seconds) ? 0 : seconds;
+        }
+
+        // Helper function to format seconds to MM:SS or HH:MM:SS
+        function formatTime(totalSeconds, includeHours = false) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = Math.floor(totalSeconds % 60);
+
+            if (hours > 0 || includeHours) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Helper function to format pace (min/km)
+        function formatPace(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Section 1: Race Planner
+        function calculateRacePlan() {
+            const targetTimeStr = document.getElementById('target-time').value;
+            const stationTimeStr = document.getElementById('total-station-time').value;
+            const strategy = document.getElementById('pacing-strategy').value;
+
+            if (!targetTimeStr || !stationTimeStr) {
+                alert('Please enter both target finish time and total station time');
+                return;
+            }
+
+            const targetSeconds = parseTimeToSeconds(targetTimeStr);
+            const stationSeconds = parseTimeToSeconds(stationTimeStr);
+
+            if (targetSeconds <= 0 || stationSeconds <= 0) {
+                alert('Please enter valid times');
+                return;
+            }
+
+            if (stationSeconds >= targetSeconds) {
+                alert('Station time cannot be greater than or equal to target finish time');
+                return;
+            }
+
+            // Calculate total running time available
+            const totalRunTime = targetSeconds - stationSeconds;
+
+            // Generate paces based on strategy
+            let runTimes = [];
+            const avgPace = totalRunTime / 8; // Average time per 1km
+
+            if (strategy === 'even') {
+                // Even pace for all runs
+                for (let i = 0; i < 8; i++) {
+                    runTimes.push(avgPace);
+                }
+            } else if (strategy === 'conservative') {
+                // Start slower, finish faster (5% variation)
+                for (let i = 0; i < 8; i++) {
+                    const factor = 1.05 - (i * 0.015); // 1.05 to 0.945
+                    runTimes.push(avgPace * factor);
+                }
+            } else if (strategy === 'aggressive') {
+                // Start faster, slow down (5% variation)
+                for (let i = 0; i < 8; i++) {
+                    const factor = 0.95 + (i * 0.015); // 0.95 to 1.055
+                    runTimes.push(avgPace * factor);
+                }
+            }
+
+            // Display results
+            const resultDiv = document.getElementById('race-plan-result');
+            let html = `
+                <div class="result">
+                    <h3>Race Plan</h3>
+                    <p><strong>Target Finish Time:</strong> ${formatTime(targetSeconds, true)}</p>
+                    <p><strong>Total Station Time:</strong> ${formatTime(stationSeconds)}</p>
+                    <p><strong>Total Running Time:</strong> ${formatTime(totalRunTime)}</p>
+                    <p><strong>Average Run Pace:</strong> ${formatPace(avgPace)} per km</p>
+
+                    <table style="margin-top: 20px;">
+                        <thead>
+                            <tr>
+                                <th>Segment</th>
+                                <th>Target Time</th>
+                                <th>Pace (min/km)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            for (let i = 0; i < 8; i++) {
+                html += `
+                    <tr class="run-row">
+                        <td class="run-name">Run ${i + 1}</td>
+                        <td>${formatTime(runTimes[i])}</td>
+                        <td>${formatPace(runTimes[i])}</td>
+                    </tr>
+                `;
+            }
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            resultDiv.innerHTML = html;
+            resultDiv.style.display = 'block';
+        }
+
+        // Section 3: Split Analyzer
+        function analyzeSplits() {
+            const stations = [
+                'SkiErg', 'Sled Push', 'Sled Pull', 'Burpee Broad Jumps',
+                'Rowing', 'Farmers Carry', 'Sandbag Lunges', 'Wall Balls'
+            ];
+
+            let runTimes = [];
+            let stationTimes = [];
+            let hasData = false;
+
+            // Collect run times
+            for (let i = 1; i <= 8; i++) {
+                const timeStr = document.getElementById(`run-${i}`).value;
+                const seconds = parseTimeToSeconds(timeStr);
+                runTimes.push(seconds);
+                if (seconds > 0) hasData = true;
+            }
+
+            // Collect station times
+            for (let i = 1; i <= 8; i++) {
+                const timeStr = document.getElementById(`station-${i}`).value;
+                const seconds = parseTimeToSeconds(timeStr);
+                stationTimes.push(seconds);
+                if (seconds > 0) hasData = true;
+            }
+
+            if (!hasData) {
+                alert('Please enter at least some split times');
+                return;
+            }
+
+            // Calculate totals
+            const totalRunTime = runTimes.reduce((a, b) => a + b, 0);
+            const totalStationTime = stationTimes.reduce((a, b) => a + b, 0);
+            const splitsTotal = totalRunTime + totalStationTime;
+
+            // Rox Zone: difference between official final time and sum of splits
+            const finalTimeStr = document.getElementById('final-time').value;
+            const officialTime = parseTimeToSeconds(finalTimeStr);
+            const totalTime = officialTime > 0 ? officialTime : splitsTotal;
+            const roxZone = officialTime > 0 ? Math.max(0, officialTime - splitsTotal) : 0;
+
+            const avgRunPace = totalRunTime / 8;
+
+            // Find fastest and slowest runs
+            const validRunTimes = runTimes.filter(t => t > 0);
+            const fastestRun = validRunTimes.length > 0 ? Math.min(...validRunTimes) : 0;
+            const slowestRun = validRunTimes.length > 0 ? Math.max(...validRunTimes) : 0;
+
+            // Display results
+            const resultDiv = document.getElementById('split-analysis-result');
+            let roxZoneHtml = '';
+            if (officialTime > 0) {
+                roxZoneHtml = `<p><strong>Rox Zone (Transitions):</strong> ${formatTime(roxZone)} (${((roxZone/totalTime)*100).toFixed(1)}%)</p>`;
+            } else {
+                roxZoneHtml = `<p style="color:#888;"><em>Enter the official final time above to calculate Rox Zone</em></p>`;
+            }
+
+            let html = `
+                <div class="result">
+                    <h3>Performance Analysis</h3>
+                    <p><strong>Total Time:</strong> ${formatTime(totalTime, true)}</p>
+                    <p><strong>Total Running Time:</strong> ${formatTime(totalRunTime)} (${((totalRunTime/totalTime)*100).toFixed(1)}%)</p>
+                    <p><strong>Total Station Time:</strong> ${formatTime(totalStationTime)} (${((totalStationTime/totalTime)*100).toFixed(1)}%)</p>
+                    ${roxZoneHtml}
+                    <p><strong>Average Run Pace:</strong> ${formatPace(avgRunPace)} per km</p>
+                    <p><strong>Fastest 1km:</strong> ${formatTime(fastestRun)} (${formatPace(fastestRun)} pace)</p>
+                    <p><strong>Slowest 1km:</strong> ${formatTime(slowestRun)} (${formatPace(slowestRun)} pace)</p>
+
+                    <table style="margin-top: 20px;">
+                        <thead>
+                            <tr>
+                                <th>Segment</th>
+                                <th>Split Time</th>
+                                <th>Pace/Info</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            for (let i = 0; i < 8; i++) {
+                if (runTimes[i] > 0) {
+                    html += `
+                        <tr class="run-row">
+                            <td class="run-name">Run ${i + 1}</td>
+                            <td>${formatTime(runTimes[i])}</td>
+                            <td>${formatPace(runTimes[i])} per km</td>
+                        </tr>
+                    `;
+                }
+
+                if (stationTimes[i] > 0) {
+                    html += `
+                        <tr class="station-row">
+                            <td class="station-name">${stations[i]}</td>
+                            <td>${formatTime(stationTimes[i])}</td>
+                            <td>Station ${i + 1}</td>
+                        </tr>
+                    `;
+                }
+            }
+
+            if (roxZone > 0) {
+                html += `
+                    <tr style="background-color: #f3e5f5 !important;">
+                        <td style="font-weight: bold; color: #7b1fa2;">Rox Zone</td>
+                        <td>${formatTime(roxZone)}</td>
+                        <td>Transitions</td>
+                    </tr>
+                `;
+            }
+
+            html += `
+                            <tr class="total-row">
+                                <td>TOTAL</td>
+                                <td>${formatTime(totalTime, true)}</td>
+                                <td>Final Time</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            resultDiv.innerHTML = html;
+            resultDiv.style.display = 'block';
+        }
+
+        // Section 2: Parse pasted results and fill split fields
+        function parseAndFillSplits() {
+            const raw = document.getElementById('paste-input').value.trim();
+            if (!raw) {
+                alert('Please paste your race results first');
+                return;
+            }
+
+            // Extract R. times and E. times using regex
+            const runMatches = raw.match(/R\.\s*(\d{1,2}:\d{2})/gi) || [];
+            const exerciseMatches = raw.match(/E\.\s*(\d{1,2}:\d{2})/gi) || [];
+
+            if (runMatches.length === 0 && exerciseMatches.length === 0) {
+                alert('Could not find any R. or E. entries. Make sure the format is like: R. 05:13  E. 04:11');
+                return;
+            }
+
+            // Fill run fields
+            for (let i = 0; i < Math.min(runMatches.length, 8); i++) {
+                const time = runMatches[i].replace(/R\.\s*/i, '').trim();
+                document.getElementById(`run-${i + 1}`).value = time;
+            }
+
+            // Fill station/exercise fields
+            for (let i = 0; i < Math.min(exerciseMatches.length, 8); i++) {
+                const time = exerciseMatches[i].replace(/E\.\s*/i, '').trim();
+                document.getElementById(`station-${i + 1}`).value = time;
+            }
+
+            // Extract final time — a standalone time like 1:18:17 that is NOT preceded by R./E./+
+            // Look for HH:MM:SS or M:MM:SS patterns not attached to R./E./+
+            const finalTimeMatch = raw.match(/(?<![RE+]\.\s*)(?<!\+)\b(\d{1,2}:\d{2}:\d{2})\b/);
+            if (finalTimeMatch) {
+                document.getElementById('final-time').value = finalTimeMatch[1];
+            }
+
+            alert(`Imported ${runMatches.length} run(s) and ${exerciseMatches.length} workout(s) successfully!`);
+        }
+
+        function clearAllSplits() {
+            for (let i = 1; i <= 8; i++) {
+                document.getElementById(`run-${i}`).value = '';
+                document.getElementById(`station-${i}`).value = '';
+            }
+            document.getElementById('paste-input').value = '';
+            document.getElementById('final-time').value = '';
+            const resultDiv = document.getElementById('split-analysis-result');
+            resultDiv.style.display = 'none';
+        }
+
+        // Track editing state
+        let editingRaceId = null;
+
+        function clearForm() {
+            clearAllSplits();
+            document.getElementById('race-name').value = '';
+            document.getElementById('race-location').value = '';
+            document.getElementById('race-category').value = 'Men Open';
+            document.getElementById('partner-name').value = '';
+            document.querySelector('input[name="race-type"][value="competition"]').checked = true;
+            document.getElementById('race-date').value = '';
+            document.getElementById('race-results-url').value = '';
+            togglePartnerName();
+            cancelEdit();
+        }
+
+        function cancelEdit() {
+            editingRaceId = null;
+            document.getElementById('save-race-btn').textContent = 'Save Race';
+            document.getElementById('cancel-edit-btn').style.display = 'none';
+        }
+
+        function editRace(id) {
+            // Load the race into the form, then set editing mode
+            loadRace(id);
+            editingRaceId = id;
+            document.getElementById('save-race-btn').textContent = 'Update Race';
+            document.getElementById('cancel-edit-btn').style.display = 'inline-block';
+            document.getElementById('race-name').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Section 4: Save race to localStorage
+        function saveRace() {
+            const name = document.getElementById('race-name').value.trim();
+            const location = document.getElementById('race-location').value.trim();
+            const category = document.getElementById('race-category').value;
+            const partnerName = document.getElementById('partner-name').value.trim();
+            const raceType = document.querySelector('input[name="race-type"]:checked').value;
+            const date = document.getElementById('race-date').value;
+            const resultsUrl = document.getElementById('race-results-url').value.trim();
+
+            if (!name) {
+                alert('Please enter a race name');
+                return;
+            }
+
+            const stations = [
+                'SkiErg', 'Sled Push', 'Sled Pull', 'Burpee Broad Jumps',
+                'Rowing', 'Farmers Carry', 'Sandbag Lunges', 'Wall Balls'
+            ];
+
+            let runTimes = [];
+            let stationTimes = [];
+            let hasData = false;
+
+            for (let i = 1; i <= 8; i++) {
+                const runVal = document.getElementById(`run-${i}`).value.trim();
+                const stationVal = document.getElementById(`station-${i}`).value.trim();
+                runTimes.push(runVal);
+                stationTimes.push(stationVal);
+                if (runVal || stationVal) hasData = true;
+            }
+
+            if (!hasData) {
+                alert('Please fill in at least some splits before saving');
+                return;
+            }
+
+            const totalRunSeconds = runTimes.reduce((sum, t) => sum + parseTimeToSeconds(t), 0);
+            const totalStationSeconds = stationTimes.reduce((sum, t) => sum + parseTimeToSeconds(t), 0);
+            const splitsTotal = totalRunSeconds + totalStationSeconds;
+
+            const finalTimeStr = document.getElementById('final-time').value.trim();
+            const officialTime = parseTimeToSeconds(finalTimeStr);
+            const totalSeconds = officialTime > 0 ? officialTime : splitsTotal;
+            const roxZoneSeconds = officialTime > 0 ? Math.max(0, officialTime - splitsTotal) : 0;
+
+            const race = {
+                id: editingRaceId || Date.now(),
+                name,
+                partnerName,
+                location,
+                category,
+                raceType,
+                date,
+                resultsUrl,
+                runTimes,
+                stationTimes,
+                stations,
+                totalRunSeconds,
+                totalStationSeconds,
+                roxZoneSeconds,
+                totalSeconds,
+                finalTime: finalTimeStr
+            };
+
+            let races = JSON.parse(localStorage.getItem('hyrox_races') || '[]');
+
+            if (editingRaceId) {
+                races = races.map(r => r.id === editingRaceId ? race : r);
+                alert('Race updated successfully!');
+            } else {
+                races.push(race);
+                alert('Race saved successfully!');
+            }
+
+            localStorage.setItem('hyrox_races', JSON.stringify(races));
+            clearForm();
+            renderHistory();
+        }
+
+        function deleteRace(id) {
+            if (!confirm('Delete this race result?')) return;
+            let races = JSON.parse(localStorage.getItem('hyrox_races') || '[]');
+            races = races.filter(r => r.id !== id);
+            localStorage.setItem('hyrox_races', JSON.stringify(races));
+            renderHistory();
+        }
+
+        function loadRace(id) {
+            const races = JSON.parse(localStorage.getItem('hyrox_races') || '[]');
+            const race = races.find(r => r.id === id);
+            if (!race) return;
+
+            for (let i = 0; i < 8; i++) {
+                document.getElementById(`run-${i + 1}`).value = race.runTimes[i] || '';
+                document.getElementById(`station-${i + 1}`).value = race.stationTimes[i] || '';
+            }
+
+            document.getElementById('race-name').value = race.name || '';
+            document.getElementById('race-location').value = race.location || '';
+            document.getElementById('race-category').value = race.category || 'Men Open';
+            document.getElementById('partner-name').value = race.partnerName || '';
+            const typeVal = race.raceType || 'competition';
+            const typeRadio = document.querySelector(`input[name="race-type"][value="${typeVal}"]`);
+            if (typeRadio) typeRadio.checked = true;
+            document.getElementById('race-date').value = race.date || '';
+            document.getElementById('race-results-url').value = race.resultsUrl || '';
+            document.getElementById('final-time').value = race.finalTime || '';
+            togglePartnerName();
+
+            // Scroll to the split analyzer
+            document.getElementById('run-1').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('race-history');
+            const allRaces = JSON.parse(localStorage.getItem('hyrox_races') || '[]');
+            const filter = document.querySelector('input[name="history-filter"]:checked').value;
+            const races = filter === 'all' ? allRaces : allRaces.filter(r => (r.raceType || 'competition') === filter);
+
+            if (allRaces.length === 0) {
+                container.innerHTML = '<p style="color: #888; text-align: center;">No saved races yet.</p>';
+                return;
+            }
+
+            if (races.length === 0) {
+                container.innerHTML = `<p style="color: #888; text-align: center;">No ${filter} races found.</p>`;
+                return;
+            }
+
+            // Sort by date descending (newest first)
+            races.sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.id - a.id);
+
+            let html = '';
+            for (const race of races) {
+                const dateStr = race.date ? new Date(race.date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'No date';
+                const runDisplay = race.runTimes.map((t, i) => t ? `R${i+1}: ${t}` : null).filter(Boolean).join(' | ');
+                const stationDisplay = race.stationTimes.map((t, i) => t ? `${race.stations[i]}: ${t}` : null).filter(Boolean).join(' | ');
+
+                html += `
+                    <div class="history-entry">
+                        <div class="history-actions">
+                            <button class="btn-load" onclick="loadRace(${race.id})">Load</button>
+                            <button style="background-color:#f39c12;" onclick="editRace(${race.id})">Edit</button>
+                            <button class="btn-delete" onclick="deleteRace(${race.id})">Delete</button>
+                        </div>
+                        <h4>${escapeHtml(race.name)}${race.partnerName ? ' <span style="font-weight:normal;color:#666;">w/ ' + escapeHtml(race.partnerName) + '</span>' : ''}<span class="tag tag-${race.raceType === 'simulation' ? 'simulation' : 'competition'}">${race.raceType === 'simulation' ? 'Simulation' : 'Competition'}</span></h4>
+                        <div class="history-meta">
+                            <span>${dateStr}</span>
+                            <span>${escapeHtml(race.location || 'No location')}</span>
+                            <span>${escapeHtml(race.category)}</span>
+                            ${race.resultsUrl ? `<span><a href="${escapeHtml(race.resultsUrl)}" target="_blank" rel="noopener" style="color: #3498db;">Official Results</a></span>` : ''}
+                        </div>
+                        <div class="history-times">
+                            <div class="runs">
+                                <div class="label run-name">Runs</div>
+                                <div>${runDisplay || 'N/A'}</div>
+                            </div>
+                            <div class="workouts">
+                                <div class="label station-name">Workouts</div>
+                                <div>${stationDisplay || 'N/A'}</div>
+                            </div>
+                        </div>
+                        <div class="history-total">Total: ${formatTime(race.totalSeconds, true)} (Run: ${formatTime(race.totalRunSeconds)} | Stations: ${formatTime(race.totalStationSeconds)}${race.roxZoneSeconds ? ' | Rox Zone: ' + formatTime(race.roxZoneSeconds) : ''})</div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // Export all localStorage data as JSON file
+        function exportData() {
+            const data = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                try {
+                    data[key] = JSON.parse(localStorage.getItem(key));
+                } catch {
+                    data[key] = localStorage.getItem(key);
+                }
+            }
+
+            if (Object.keys(data).length === 0) {
+                alert('No data to export');
+                return;
+            }
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `hyrox-data-${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Import data from JSON file
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    if (typeof data !== 'object' || data === null) {
+                        alert('Invalid file format');
+                        return;
+                    }
+
+                    const existingRaces = JSON.parse(localStorage.getItem('hyrox_races') || '[]');
+                    const existingIds = new Set(existingRaces.map(r => r.id));
+                    let merged = false;
+
+                    for (const [key, value] of Object.entries(data)) {
+                        if (key === 'hyrox_races' && Array.isArray(value) && existingRaces.length > 0) {
+                            // Merge races by id to avoid duplicates
+                            const incoming = value.filter(r => !existingIds.has(r.id));
+                            const combined = existingRaces.concat(incoming);
+                            localStorage.setItem(key, JSON.stringify(combined));
+                            merged = true;
+                        } else {
+                            localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+                        }
+                    }
+
+                    renderHistory();
+                    alert(`Data imported successfully!${merged ? ' Duplicate races were skipped.' : ''}`);
+                } catch {
+                    alert('Error reading file. Make sure it is a valid JSON export.');
+                }
+
+                // Reset file input so the same file can be re-imported
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // Show/hide partner name based on category
+        function togglePartnerName() {
+            const category = document.getElementById('race-category').value;
+            const isTeam = category.includes('Doubles') || category.includes('Relay');
+            document.getElementById('partner-name-group').style.display = isTeam ? 'block' : 'none';
+        }
+        document.getElementById('race-category').addEventListener('change', togglePartnerName);
+
+        // Section 6: Reference guide data per category
+        // Times in "MM:SS" format: [elite, advanced, intermediate, beginner] as [min, max] pairs
+        const referenceData = {
+            'Men Open': {
+                totalTime: ['Sub 1:10', '1:10-1:25', '1:25-1:45', '1:45+'],
+                running: {
+                    label: '1km Run Pace',
+                    elite: ['3:50-4:20', '~32:00-35:00'],
+                    advanced: ['4:20-5:00', '~35:00-40:00'],
+                    intermediate: ['5:00-5:45', '~40:00-46:00'],
+                    beginner: ['5:45-7:00', '~46:00-56:00']
+                },
+                stations: [
+                    { name: 'SkiErg (1000m)',           elite: '3:00-3:30',  advanced: '3:30-4:15',  intermediate: '4:15-5:00',  beginner: '5:00-6:00' },
+                    { name: 'Sled Push (50m)',           elite: '0:45-1:15',  advanced: '1:15-2:00',  intermediate: '2:00-3:00',  beginner: '3:00-4:30' },
+                    { name: 'Sled Pull (50m)',           elite: '0:45-1:15',  advanced: '1:15-2:00',  intermediate: '2:00-3:00',  beginner: '3:00-4:30' },
+                    { name: 'Burpee Broad Jumps (80m)',  elite: '2:00-2:45',  advanced: '2:45-3:45',  intermediate: '3:45-5:00',  beginner: '5:00-6:30' },
+                    { name: 'Rowing (1000m)',            elite: '3:00-3:30',  advanced: '3:30-4:00',  intermediate: '4:00-4:45',  beginner: '4:45-5:30' },
+                    { name: 'Farmers Carry (200m)',      elite: '1:30-2:00',  advanced: '2:00-2:45',  intermediate: '2:45-3:30',  beginner: '3:30-4:30' },
+                    { name: 'Sandbag Lunges (100m)',     elite: '2:30-3:15',  advanced: '3:15-4:30',  intermediate: '4:30-6:00',  beginner: '6:00-8:00' },
+                    { name: 'Wall Balls (100 reps)',     elite: '3:00-3:45',  advanced: '3:45-4:45',  intermediate: '4:45-6:00',  beginner: '6:00-7:30' }
+                ],
+                stationTotal: { elite: '17-21 min', advanced: '22-28 min', intermediate: '29-37 min', beginner: '38-46 min' }
+            },
+            'Women Open': {
+                totalTime: ['Sub 1:20', '1:20-1:35', '1:35-1:55', '1:55+'],
+                running: {
+                    label: '1km Run Pace',
+                    elite: ['4:20-4:50', '~35:00-39:00'],
+                    advanced: ['4:50-5:30', '~39:00-44:00'],
+                    intermediate: ['5:30-6:15', '~44:00-50:00'],
+                    beginner: ['6:15-7:30', '~50:00-60:00']
+                },
+                stations: [
+                    { name: 'SkiErg (1000m)',           elite: '3:30-4:00',  advanced: '4:00-4:45',  intermediate: '4:45-5:30',  beginner: '5:30-6:30' },
+                    { name: 'Sled Push (50m)',           elite: '1:00-1:30',  advanced: '1:30-2:15',  intermediate: '2:15-3:15',  beginner: '3:15-5:00' },
+                    { name: 'Sled Pull (50m)',           elite: '1:00-1:30',  advanced: '1:30-2:15',  intermediate: '2:15-3:15',  beginner: '3:15-5:00' },
+                    { name: 'Burpee Broad Jumps (80m)',  elite: '2:30-3:15',  advanced: '3:15-4:15',  intermediate: '4:15-5:30',  beginner: '5:30-7:00' },
+                    { name: 'Rowing (1000m)',            elite: '3:30-4:00',  advanced: '4:00-4:30',  intermediate: '4:30-5:15',  beginner: '5:15-6:00' },
+                    { name: 'Farmers Carry (200m)',      elite: '1:45-2:15',  advanced: '2:15-3:00',  intermediate: '3:00-3:45',  beginner: '3:45-5:00' },
+                    { name: 'Sandbag Lunges (100m)',     elite: '3:00-3:45',  advanced: '3:45-5:00',  intermediate: '5:00-6:30',  beginner: '6:30-9:00' },
+                    { name: 'Wall Balls (75 reps)',      elite: '2:30-3:15',  advanced: '3:15-4:15',  intermediate: '4:15-5:30',  beginner: '5:30-7:00' }
+                ],
+                stationTotal: { elite: '19-24 min', advanced: '24-31 min', intermediate: '31-40 min', beginner: '40-50 min' }
+            },
+            'Men Pro': {
+                totalTime: ['Sub 1:00', '1:00-1:10', '1:10-1:20', '1:20+'],
+                running: {
+                    label: '1km Run Pace',
+                    elite: ['3:20-3:45', '~27:00-30:00'],
+                    advanced: ['3:45-4:10', '~30:00-33:00'],
+                    intermediate: ['4:10-4:30', '~33:00-36:00'],
+                    beginner: ['4:30-5:00', '~36:00-40:00']
+                },
+                stations: [
+                    { name: 'SkiErg (1000m)',           elite: '2:40-3:00',  advanced: '3:00-3:20',  intermediate: '3:20-3:45',  beginner: '3:45-4:15' },
+                    { name: 'Sled Push (50m)',           elite: '0:30-0:50',  advanced: '0:50-1:10',  intermediate: '1:10-1:30',  beginner: '1:30-2:00' },
+                    { name: 'Sled Pull (50m)',           elite: '0:30-0:50',  advanced: '0:50-1:10',  intermediate: '1:10-1:30',  beginner: '1:30-2:00' },
+                    { name: 'Burpee Broad Jumps (80m)',  elite: '1:30-2:00',  advanced: '2:00-2:30',  intermediate: '2:30-3:00',  beginner: '3:00-3:45' },
+                    { name: 'Rowing (1000m)',            elite: '2:50-3:10',  advanced: '3:10-3:30',  intermediate: '3:30-3:50',  beginner: '3:50-4:15' },
+                    { name: 'Farmers Carry (200m)',      elite: '1:15-1:30',  advanced: '1:30-1:50',  intermediate: '1:50-2:15',  beginner: '2:15-2:45' },
+                    { name: 'Sandbag Lunges (100m)',     elite: '2:00-2:30',  advanced: '2:30-3:15',  intermediate: '3:15-4:00',  beginner: '4:00-5:00' },
+                    { name: 'Wall Balls (100 reps)',     elite: '2:30-3:00',  advanced: '3:00-3:30',  intermediate: '3:30-4:15',  beginner: '4:15-5:00' }
+                ],
+                stationTotal: { elite: '14-17 min', advanced: '17-20 min', intermediate: '20-24 min', beginner: '24-29 min' }
+            },
+            'Women Pro': {
+                totalTime: ['Sub 1:10', '1:10-1:20', '1:20-1:30', '1:30+'],
+                running: {
+                    label: '1km Run Pace',
+                    elite: ['3:50-4:15', '~31:00-34:00'],
+                    advanced: ['4:15-4:40', '~34:00-37:00'],
+                    intermediate: ['4:40-5:00', '~37:00-40:00'],
+                    beginner: ['5:00-5:30', '~40:00-44:00']
+                },
+                stations: [
+                    { name: 'SkiErg (1000m)',           elite: '3:00-3:20',  advanced: '3:20-3:45',  intermediate: '3:45-4:15',  beginner: '4:15-4:45' },
+                    { name: 'Sled Push (50m)',           elite: '0:40-1:00',  advanced: '1:00-1:20',  intermediate: '1:20-1:45',  beginner: '1:45-2:15' },
+                    { name: 'Sled Pull (50m)',           elite: '0:40-1:00',  advanced: '1:00-1:20',  intermediate: '1:20-1:45',  beginner: '1:45-2:15' },
+                    { name: 'Burpee Broad Jumps (80m)',  elite: '2:00-2:30',  advanced: '2:30-3:00',  intermediate: '3:00-3:30',  beginner: '3:30-4:15' },
+                    { name: 'Rowing (1000m)',            elite: '3:10-3:30',  advanced: '3:30-3:50',  intermediate: '3:50-4:15',  beginner: '4:15-4:45' },
+                    { name: 'Farmers Carry (200m)',      elite: '1:30-1:50',  advanced: '1:50-2:10',  intermediate: '2:10-2:40',  beginner: '2:40-3:15' },
+                    { name: 'Sandbag Lunges (100m)',     elite: '2:30-3:00',  advanced: '3:00-3:45',  intermediate: '3:45-4:30',  beginner: '4:30-5:30' },
+                    { name: 'Wall Balls (75 reps)',      elite: '2:15-2:45',  advanced: '2:45-3:15',  intermediate: '3:15-4:00',  beginner: '4:00-5:00' }
+                ],
+                stationTotal: { elite: '16-19 min', advanced: '19-23 min', intermediate: '23-27 min', beginner: '27-32 min' }
+            },
+            'Men Doubles': {
+                totalTime: ['Sub 1:05', '1:05-1:20', '1:20-1:40', '1:40+'],
+                running: {
+                    label: '1km Run Pace',
+                    elite: ['3:40-4:10', '~30:00-33:00'],
+                    advanced: ['4:10-4:50', '~33:00-39:00'],
+                    intermediate: ['4:50-5:30', '~39:00-44:00'],
+                    beginner: ['5:30-6:30', '~44:00-52:00']
+                },
+                stations: [
+                    { name: 'SkiErg (1000m)',           elite: '2:45-3:15',  advanced: '3:15-3:50',  intermediate: '3:50-4:30',  beginner: '4:30-5:30' },
+                    { name: 'Sled Push (50m)',           elite: '0:30-0:50',  advanced: '0:50-1:20',  intermediate: '1:20-2:00',  beginner: '2:00-3:00' },
+                    { name: 'Sled Pull (50m)',           elite: '0:30-0:50',  advanced: '0:50-1:20',  intermediate: '1:20-2:00',  beginner: '2:00-3:00' },
+                    { name: 'Burpee Broad Jumps (80m)',  elite: '1:45-2:15',  advanced: '2:15-3:00',  intermediate: '3:00-4:00',  beginner: '4:00-5:30' },
+                    { name: 'Rowing (1000m)',            elite: '2:50-3:15',  advanced: '3:15-3:45',  intermediate: '3:45-4:30',  beginner: '4:30-5:15' },
+                    { name: 'Farmers Carry (200m)',      elite: '1:15-1:45',  advanced: '1:45-2:15',  intermediate: '2:15-3:00',  beginner: '3:00-4:00' },
+                    { name: 'Sandbag Lunges (100m)',     elite: '2:00-2:45',  advanced: '2:45-3:45',  intermediate: '3:45-5:00',  beginner: '5:00-7:00' },
+                    { name: 'Wall Balls (100 reps)',     elite: '2:30-3:15',  advanced: '3:15-4:00',  intermediate: '4:00-5:15',  beginner: '5:15-6:30' }
+                ],
+                stationTotal: { elite: '15-18 min', advanced: '19-24 min', intermediate: '24-31 min', beginner: '31-39 min' }
+            },
+            'Women Doubles': {
+                totalTime: ['Sub 1:15', '1:15-1:30', '1:30-1:50', '1:50+'],
+                running: {
+                    label: '1km Run Pace',
+                    elite: ['4:10-4:40', '~33:00-37:00'],
+                    advanced: ['4:40-5:20', '~37:00-43:00'],
+                    intermediate: ['5:20-6:00', '~43:00-48:00'],
+                    beginner: ['6:00-7:00', '~48:00-56:00']
+                },
+                stations: [
+                    { name: 'SkiErg (1000m)',           elite: '3:15-3:45',  advanced: '3:45-4:30',  intermediate: '4:30-5:15',  beginner: '5:15-6:15' },
+                    { name: 'Sled Push (50m)',           elite: '0:40-1:00',  advanced: '1:00-1:30',  intermediate: '1:30-2:15',  beginner: '2:15-3:30' },
+                    { name: 'Sled Pull (50m)',           elite: '0:40-1:00',  advanced: '1:00-1:30',  intermediate: '1:30-2:15',  beginner: '2:15-3:30' },
+                    { name: 'Burpee Broad Jumps (80m)',  elite: '2:00-2:45',  advanced: '2:45-3:30',  intermediate: '3:30-4:30',  beginner: '4:30-6:00' },
+                    { name: 'Rowing (1000m)',            elite: '3:15-3:45',  advanced: '3:45-4:15',  intermediate: '4:15-5:00',  beginner: '5:00-5:45' },
+                    { name: 'Farmers Carry (200m)',      elite: '1:30-2:00',  advanced: '2:00-2:30',  intermediate: '2:30-3:15',  beginner: '3:15-4:15' },
+                    { name: 'Sandbag Lunges (100m)',     elite: '2:30-3:15',  advanced: '3:15-4:15',  intermediate: '4:15-5:30',  beginner: '5:30-7:30' },
+                    { name: 'Wall Balls (75 reps)',      elite: '2:15-3:00',  advanced: '3:00-3:45',  intermediate: '3:45-5:00',  beginner: '5:00-6:30' }
+                ],
+                stationTotal: { elite: '17-21 min', advanced: '21-26 min', intermediate: '26-33 min', beginner: '33-43 min' }
+            },
+            'Mixed Doubles': {
+                totalTime: ['Sub 1:10', '1:10-1:25', '1:25-1:45', '1:45+'],
+                running: {
+                    label: '1km Run Pace',
+                    elite: ['4:00-4:30', '~32:00-36:00'],
+                    advanced: ['4:30-5:10', '~36:00-41:00'],
+                    intermediate: ['5:10-5:50', '~41:00-47:00'],
+                    beginner: ['5:50-6:45', '~47:00-54:00']
+                },
+                stations: [
+                    { name: 'SkiErg (1000m)',           elite: '3:00-3:30',  advanced: '3:30-4:10',  intermediate: '4:10-5:00',  beginner: '5:00-6:00' },
+                    { name: 'Sled Push (50m)',           elite: '0:35-0:55',  advanced: '0:55-1:25',  intermediate: '1:25-2:10',  beginner: '2:10-3:15' },
+                    { name: 'Sled Pull (50m)',           elite: '0:35-0:55',  advanced: '0:55-1:25',  intermediate: '1:25-2:10',  beginner: '2:10-3:15' },
+                    { name: 'Burpee Broad Jumps (80m)',  elite: '1:50-2:30',  advanced: '2:30-3:15',  intermediate: '3:15-4:15',  beginner: '4:15-5:45' },
+                    { name: 'Rowing (1000m)',            elite: '3:00-3:30',  advanced: '3:30-4:00',  intermediate: '4:00-4:45',  beginner: '4:45-5:30' },
+                    { name: 'Farmers Carry (200m)',      elite: '1:20-1:50',  advanced: '1:50-2:20',  intermediate: '2:20-3:10',  beginner: '3:10-4:10' },
+                    { name: 'Sandbag Lunges (100m)',     elite: '2:15-3:00',  advanced: '3:00-4:00',  intermediate: '4:00-5:15',  beginner: '5:15-7:15' },
+                    { name: 'Wall Balls (100/75 reps)',  elite: '2:45-3:30',  advanced: '3:30-4:15',  intermediate: '4:15-5:30',  beginner: '5:30-7:00' }
+                ],
+                stationTotal: { elite: '16-20 min', advanced: '20-25 min', intermediate: '25-32 min', beginner: '32-42 min' }
+            }
+        };
+
+        function renderReferenceGuide() {
+            const category = document.getElementById('ref-category').value;
+            const data = referenceData[category];
+            if (!data) return;
+
+            const levels = ['elite', 'advanced', 'intermediate', 'beginner'];
+            const levelLabels = ['Elite', 'Advanced', 'Intermediate', 'Beginner'];
+
+            let html = `
+                <h3 style="margin-top:20px; color:#0c5460; border-bottom:2px solid #0c5460; padding-bottom:5px;">Running (8 x 1km)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Segment</th>
+                            <th>${levelLabels[0]}<br>(${data.totalTime[0]})</th>
+                            <th>${levelLabels[1]}<br>(${data.totalTime[1]})</th>
+                            <th>${levelLabels[2]}<br>(${data.totalTime[2]})</th>
+                            <th>${levelLabels[3]}<br>(${data.totalTime[3]})</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="run-row">
+                            <td class="run-name">1km Pace</td>
+                            <td>${data.running.elite[0]}</td>
+                            <td>${data.running.advanced[0]}</td>
+                            <td>${data.running.intermediate[0]}</td>
+                            <td>${data.running.beginner[0]}</td>
+                        </tr>
+                        <tr class="run-row">
+                            <td class="run-name">Total 8km</td>
+                            <td>${data.running.elite[1]}</td>
+                            <td>${data.running.advanced[1]}</td>
+                            <td>${data.running.intermediate[1]}</td>
+                            <td>${data.running.beginner[1]}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="margin-top:25px; color:#856404; border-bottom:2px solid #856404; padding-bottom:5px;">Workout Stations</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Station</th>
+                            <th>${levelLabels[0]}<br>(${data.totalTime[0]})</th>
+                            <th>${levelLabels[1]}<br>(${data.totalTime[1]})</th>
+                            <th>${levelLabels[2]}<br>(${data.totalTime[2]})</th>
+                            <th>${levelLabels[3]}<br>(${data.totalTime[3]})</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            for (const s of data.stations) {
+                html += `
+                    <tr class="station-row">
+                        <td class="station-name">${s.name}</td>
+                        <td>${s.elite}</td>
+                        <td>${s.advanced}</td>
+                        <td>${s.intermediate}</td>
+                        <td>${s.beginner}</td>
+                    </tr>
+                `;
+            }
+
+            html += `
+                        <tr class="total-row">
+                            <td>TOTAL STATIONS</td>
+                            <td>${data.stationTotal.elite}</td>
+                            <td>${data.stationTotal.advanced}</td>
+                            <td>${data.stationTotal.intermediate}</td>
+                            <td>${data.stationTotal.beginner}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('ref-guide-content').innerHTML = html;
+        }
+
+        // Load history and reference guide on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            renderHistory();
+            renderReferenceGuide();
+        });
+    </script>
+</body>
+</html>
