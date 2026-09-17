@@ -48,7 +48,7 @@ Benchmark ranges per level (Elite / Advanced / Intermediate / Beginner) for run 
 | 5 | Rowing | 1000 m |
 | 6 | Farmers Carry | 200 m |
 | 7 | Sandbag Lunges | 100 m |
-| 8 | Wall Balls | 100 reps (75 for women) |
+| 8 | Wall Balls | 100 reps  |
 
 ## Time formats
 
