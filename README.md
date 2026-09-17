@@ -6,12 +6,6 @@ Single-file HTML app (no build, no dependencies, no server) to plan, import, ana
 
 Or open `hyrox_calculator.html` locally in any modern browser — it works the same offline. All data lives in the browser's `localStorage`.
 
-## Description (≤350 chars)
-
-> Single-file HTML app to plan and analyse Hyrox races. Set a target time and get per-km pacing, import splits by pasting official results, break down runs, stations and Rox Zone, and save every race or simulation locally with export/import. Includes reference times by level for 7 categories.
-
-(348 characters)
-
 ## Features
 
 ### 1. Race Planner
